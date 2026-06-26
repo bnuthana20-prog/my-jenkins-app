@@ -9,14 +9,23 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                bat 'mvn -version'  // Debug line
-                bat 'echo JAVA_HOME=%JAVA_HOME%'  // Debug line
-                bat 'mvn -Dmaven.test.failure.ignore=true clean package'
+                script {
+                    def jdk = tool name: 'JDK21'
+                    def mvn = tool name: 'Maven3'
+                    withEnv(["JAVA_HOME=${jdk}", "PATH+JDK=${jdk}\\bin", "PATH+MAVEN=${mvn}\\bin"]) {
+                        bat 'echo JAVA_HOME=%JAVA_HOME%'
+                        bat 'dir "%JAVA_HOME%"'
+                        bat '"%JAVA_HOME%\\bin\\java.exe" -version'
+                        bat '"%MAVEN_HOME%\\bin\\mvn.cmd" -version'
+                        bat '"%MAVEN_HOME%\\bin\\mvn.cmd" -Dmaven.test.failure.ignore=true clean package'
+                    }
+                }
             }
         }
+        
         stage('Docker Build') {
             steps {
-                bat 'docker build -t bnuthana20-prog/my-jenkins-app:${BUILD_NUMBER} .'
+                bat 'docker build -t bnuthana20-prog/my-jenkins-app:%BUILD_NUMBER% .'
             }
         }
     }
