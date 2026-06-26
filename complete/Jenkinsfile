@@ -1,13 +1,15 @@
 pipeline {
     agent any
-    tools { 
-        maven 'Maven3' 
-        jdk 'JDK21' 
+    tools {
+        maven 'Maven3'
+        jdk 'JDK21'
     }
     stages {
         stage('Build') {
             steps {
-                bat 'mvn -Dmaven.test.failure.ignore=true clean package'
+                withEnv(["JAVA_HOME=${tool 'JDK21'}"]) {
+                    bat 'mvn -Dmaven.test.failure.ignore=true clean package'
+                }
             }
         }
         stage('Docker Build') {
