@@ -1,17 +1,19 @@
 pipeline {
     agent any
+    
     tools {
         jdk 'JDK21'
         maven 'Maven3'
     }
+    
     stages {
         stage('Build') {
-            steps{
-                withEnv(["JAVA_HOME=${tool 'JDK21'}", "PATH+MAVEN=${tool 'Maven3'}/bin"]) {
-                    bat 'mvn -Dmaven.test.failure.ignore=true clean package'
-                  }
-                }
+            steps {
+                bat 'mvn -version'  // Debug line
+                bat 'echo JAVA_HOME=%JAVA_HOME%'  // Debug line
+                bat 'mvn -Dmaven.test.failure.ignore=true clean package'
             }
+        }
         stage('Docker Build') {
             steps {
                 bat 'docker build -t bnuthana20-prog/my-jenkins-app:${BUILD_NUMBER} .'
